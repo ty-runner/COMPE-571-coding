@@ -1,0 +1,1 @@
+I can't get the sums of different tasks to sync, i tried a shared var and just adding on top of it but nothing worked, I think thats where the communication line is needed, to send results upstream. 
