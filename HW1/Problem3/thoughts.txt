@@ -1,0 +1,1 @@
+Is the problem asking to find the PID of each fork? Or to find out why type of child or parent process it is?
