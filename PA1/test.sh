@@ -3,7 +3,8 @@
 gcc baseline.c -o baseline.o
 
 values=(100000000 1000000000 10000000000)
-#threads
+#NUM_THREADS={2, 4, 8}
+#NUM_TASKS={2, 4, 8}
 
 for value in "${values[@]}"
 do
