@@ -2,11 +2,11 @@
 #include <stdlib.h>
 
 int main (int argc, char *argv[]) {
-	long long sum = 0;
-	int N = atoi(argv[1]);
-	for (int i = 0; i < N; i++){
+	double sum = 0;
+	double N = atof(argv[1]);
+	for (double i = 1; i < N; i++){
 		sum += i;
 	}
-	printf("Sum is: %lld\n", sum);
+	printf("Sum is: %.0f\n", sum);
 	return 0;
 }	
