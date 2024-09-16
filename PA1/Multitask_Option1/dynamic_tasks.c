@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void calculate_sum(long double start, long double end, long double pipe_fd[2]){
+void calculate_sum(long double start, long double end, int pipe_fd[2]){
     long double sum = 0;
     for(long double i = start; i < end; i++){
         sum += i;
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
     long double N = strtold(argv[1], NULL);
     int num_tasks = atoi(argv[2]);
     long double chunk_size = N / num_tasks;
-    long double pipes[num_tasks][2];
+    int pipes[num_tasks][2];
     pid_t pids[num_tasks];
 
     for(int i = 0; i < num_tasks; i++){
