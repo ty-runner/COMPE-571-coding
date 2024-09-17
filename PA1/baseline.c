@@ -2,27 +2,27 @@
 #include <stdlib.h>
 #include <time.h>
 
-unsigned long long calc_sum(unsigned long long N) {
-    unsigned long long sum = 0;
-    for (unsigned long long i = 0; i < N; i++) {
+long double calc_sum(long double N) {
+    long double sum = 0;
+    for (long double i = 0; i < N; i++) {
         sum += i;
     }
     return sum;
 }
 
 int main(int argc, char *argv[]) {
-    unsigned long long N = strtoull(argv[1], NULL, 10);
+    long double N = strtold(argv[1], NULL);
 
     struct timespec start_time, end_time;
     clock_gettime(CLOCK_MONOTONIC, &start_time);
 
-    unsigned long long sum = calc_sum(N);
+    long double sum = calc_sum(N);
 
     clock_gettime(CLOCK_MONOTONIC, &end_time);
 
     double elapsed_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
 
-    printf("Sum is: %llu\n", sum);
+    printf("Sum is: %Lf\n", sum);
     printf("Elapsed time: %.6f seconds\n", elapsed_time);
 
     return 0;
