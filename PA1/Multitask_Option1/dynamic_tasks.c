@@ -20,7 +20,7 @@ void calculate_sum(long double start, long double end, int pipe_fd[2]){
 int main(int argc, char *argv[]){
     // Start timing
     struct timespec start_time, end_time;
-    clock_gettime(CLOCK_MONOTONIC, &start_time);  // Use CLOCK_MONOTONIC for high precision
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
 
     long double N = strtold(argv[1], NULL);
     int num_tasks = atoi(argv[2]);
@@ -41,21 +41,19 @@ int main(int argc, char *argv[]){
     for(int i = 0; i < num_tasks; i++){
         waitpid(pids[i], NULL, 0);
         long double child_sum;
-        close(pipes[i][1]);  // Close write end of the pipe
-        read(pipes[i][0], &child_sum, sizeof(child_sum));  // Read the result from the pipe
-        close(pipes[i][0]);  // Close read end of the pipe
+        close(pipes[i][1]);  // Close write
+        read(pipes[i][0], &child_sum, sizeof(child_sum));  // Read result
+        close(pipes[i][0]);  // Close read
         total_sum += child_sum;
     }
 
     // Stop timing
     clock_gettime(CLOCK_MONOTONIC, &end_time);
 
-    // Print the total sum
-    printf("Total sum is: %Lf\n", total_sum);
+    printf("Total sum is: %.0Lf\n", total_sum);
 
-    // Calculate and print the elapsed time
     double elapsed_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
-    printf("Elapsed time: %.6f seconds\n", elapsed_time);
+    printf("Elapsed time: %.5f seconds\n", elapsed_time);
 
     return 0;
 }
