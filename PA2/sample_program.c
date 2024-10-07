@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
 
 		exit(0);
 	}
-	kill(pid1, SIGSTOP);
+	kill(pid1, SIGSTOP); //child process created but paused
 
 	pid2 = fork();
 
@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
 
 		exit(0);
 	}
-	kill(pid2, SIGSTOP);
+	kill(pid2, SIGSTOP); //child process created but paused
 
 	pid3 = fork();
 
@@ -81,7 +81,7 @@ int main(int argc, char const *argv[])
 
 		exit(0);
 	}
-	kill(pid3, SIGSTOP);
+	kill(pid3, SIGSTOP); //child process created but paused
 
 	pid4 = fork();
 
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
 
 		exit(0);
 	}
-	kill(pid4, SIGSTOP);
+	kill(pid4, SIGSTOP); //child process created but paused
 
 	/************************************************************************************************ 
 		At this point, all  newly-created child processes are stopped, and ready for scheduling.
@@ -114,25 +114,26 @@ int main(int argc, char const *argv[])
 	while (running1 > 0 || running2 > 0 || running3 > 0 || running4 > 0)
 	{
 		if (running1 > 0){
-			kill(pid1, SIGCONT);
-			usleep(QUANTUM1);
-			kill(pid1, SIGSTOP);
+			kill(pid1, SIGCONT); //continue process 1
+			usleep(QUANTUM1); //process 1 run for QUANTUM1 microseconds
+			kill(pid1, SIGSTOP); //stop process 1
 		}
 		if (running2 > 0){
-			kill(pid2, SIGCONT);
-			usleep(QUANTUM2);
-			kill(pid2, SIGSTOP);
+			kill(pid2, SIGCONT); //continue process 2
+			usleep(QUANTUM2); //process 2 run for QUANTUM2 microseconds
+			kill(pid2, SIGSTOP); //stop process 2
 		}
 		if (running3 > 0){
-			kill(pid3, SIGCONT);
-			usleep(QUANTUM3);
-			kill(pid3, SIGSTOP);
+			kill(pid3, SIGCONT); //continue process 3
+			usleep(QUANTUM3); //process 3 run for QUANTUM3 microseconds
+			kill(pid3, SIGSTOP); //stop process 3
 		}
 		if (running4 > 0){
-			kill(pid4, SIGCONT);
-			usleep(QUANTUM4);
-			kill(pid4, SIGSTOP);
+			kill(pid4, SIGCONT); //continue process 4
+			usleep(QUANTUM4); //process 4 run for QUANTUM4 microseconds
+			kill(pid4, SIGSTOP); //stop process 4
 		}
+		//these waitpid's wait without blocking
 		waitpid(pid1, &running1, WNOHANG);
 		waitpid(pid2, &running2, WNOHANG);
 		waitpid(pid3, &running3, WNOHANG);
