@@ -13,10 +13,10 @@
 #define WORKLOAD3 25000
 #define WORKLOAD4 10000
 
-#define QUANTUM1 1000
-#define QUANTUM2 1000
-#define QUANTUM3 1000
-#define QUANTUM4 1000
+#define QUANTUM1 100
+#define QUANTUM2 100
+#define QUANTUM3 100
+#define QUANTUM4 100
 
 void myfunction(int param) {
     int i = 2;
@@ -132,6 +132,6 @@ int main(int argc, char const *argv[]) {
     printf("Response Time for Process 2: %ld microseconds\n", response_time2);
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
     printf("Response Time for Process 4: %ld microseconds\n", response_time4);
-
+    printf("Average response time: %ld microseconds\n", (response_time1 + response_time2 + response_time3 + response_time4) / 4);
     return 0;
 }
