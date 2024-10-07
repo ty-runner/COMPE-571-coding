@@ -12,23 +12,23 @@ int main() {
         // Second fork
         if ((pid = fork()) == 0) {
             // Grandchild process
-            printf("3\n");
+            printf("3");
         } else {
             // Child process
             wait(NULL);  // Wait for the grandchild to finish
-            printf("4\n");
+            printf("4");
         }
     } else {
         // Parent process
         if ((pid = fork()) == 0) {
             // Child process of the parent
-            printf("1\n");
+            printf("1");
             exit(0);  // Ensure this child exits after printing
         }
-        printf("2\n");
+        printf("2");
         wait(NULL);  // Wait for the child to finish
     }
     
-    printf("0\n");
+    printf("0");
     return 0;
 }
