@@ -54,8 +54,8 @@ int main(int argc, char const *argv[]) {
     pid_t pid1, pid2, pid3, pid4;
     int running1, running2, running3, running4;
     
-    struct timeval start_time1, start_time2, start_time3, start_time4; // For response time tracking
-    long response_time1, response_time2, response_time3, response_time4;
+    struct timeval start_time, start_time1, start_time2, start_time3, start_time4; // For response time tracking
+    long response_time, response_time1, response_time2, response_time3, response_time4;
 
     pid1 = fork();
     if (pid1 == 0) {
@@ -103,10 +103,9 @@ to be implemented.
     running2 = 1;
     running3 = 1;
     running4 = 1;
-
     // Initialize response time tracking variables
     int first_run1 = 0, first_run2 = 0, first_run3 = 0, first_run4 = 0;
-
+    gettimeofday(&start_time, NULL);
     while (running1 > 0 || running2 > 0 || running3 > 0 || running4 > 0) {
         if (running1 > 0) {
             if (!first_run1) { // If this is the first run for pid1
@@ -151,11 +150,12 @@ to be implemented.
     }
 
     // Calculate response times
+    response_time = (start_time.tv_sec * 1000000 + start_time.tv_usec) - (start_time.tv_sec * 1000000 + start_time.tv_usec);
     response_time1 = (start_time1.tv_sec * 1000000 + start_time1.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
     response_time2 = (start_time2.tv_sec * 1000000 + start_time2.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
     response_time3 = (start_time3.tv_sec * 1000000 + start_time3.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
     response_time4 = (start_time4.tv_sec * 1000000 + start_time4.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
-
+    printf("Response Time for All Processes: %ld microseconds\n", response_time);
     printf("Response Time for Process 1: %ld microseconds\n", response_time1);
     printf("Response Time for Process 2: %ld microseconds\n", response_time2);
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
