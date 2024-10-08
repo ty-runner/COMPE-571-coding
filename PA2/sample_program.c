@@ -7,7 +7,13 @@
 #include <time.h> 
 #include <signal.h>
 #include <sys/time.h>
-
+/*
+***********************************************************************************
+*************
+These DEFINE statements represent the workload size of each task and
+the time quantum values for Round Robin scheduling for each task.
+***********************************************************************************
+**************/
 #define WORKLOAD1 100000
 #define WORKLOAD2 50000
 #define WORKLOAD3 25000
@@ -18,6 +24,12 @@
 #define QUANTUM3 100
 #define QUANTUM4 100
 
+/*
+***********************************************************************************
+*************
+DO NOT CHANGE THE FUNCTION IMPLEMENTATION
+***********************************************************************************
+**************/
 void myfunction(int param) {
     int i = 2;
     int j, k;
@@ -35,7 +47,9 @@ void myfunction(int param) {
         i++;
     }
 }
-
+/*
+***********************************************************************************
+*************/
 int main(int argc, char const *argv[]) {
     pid_t pid1, pid2, pid3, pid4;
     int running1, running2, running3, running4;
@@ -70,7 +84,21 @@ int main(int argc, char const *argv[]) {
         exit(0);
     }
     kill(pid4, SIGSTOP); // child process created but paused
-
+/**********************************************************************************
+**************
+At this point, all newly-created child processes are stopped, and
+ready for scheduling.
+***********************************************************************************
+**************/
+/**********************************************************************************
+**************
+- Scheduling code starts here
+- Below is a sample schedule. (which scheduling algorithm is this?)
+- For the assignment purposes, you have to replace this part with the
+other scheduling methods
+to be implemented.
+***********************************************************************************
+*************/
     running1 = 1;
     running2 = 1;
     running3 = 1;
@@ -133,5 +161,12 @@ int main(int argc, char const *argv[]) {
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
     printf("Response Time for Process 4: %ld microseconds\n", response_time4);
     printf("Average response time: %ld microseconds\n", (response_time1 + response_time2 + response_time3 + response_time4) / 4);
+    
+/**********************************************************************************
+**************
+- Scheduling code ends here
+***********************************************************************************
+*************/
+
     return 0;
 }
