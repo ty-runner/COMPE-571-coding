@@ -19,10 +19,10 @@ the time quantum values for Round Robin scheduling for each task.
 #define WORKLOAD3 25000
 #define WORKLOAD4 10000
 
-#define QUANTUM1 10000
-#define QUANTUM2 10000
-#define QUANTUM3 10000
-#define QUANTUM4 10000
+#define QUANTUM1 5000
+#define QUANTUM2 5000
+#define QUANTUM3 5000
+#define QUANTUM4 5000
 
 /*
 ***********************************************************************************
@@ -143,18 +143,25 @@ to be implemented.
             usleep(QUANTUM4); // Process 4 runs for QUANTUM4 microseconds
             kill(pid4, SIGSTOP); // Stop process 4
         }
-        waitpid(pid1, &running1, WNOHANG);
-        waitpid(pid2, &running2, WNOHANG);
-        waitpid(pid3, &running3, WNOHANG);
-        waitpid(pid4, &running4, WNOHANG);
+        if(waitpid(pid1, &running1, WNOHANG) > 0){
+		gettimeofday(&finish_time, NULL);
+		response_time1 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
+	}	
+        if(waitpid(pid2, &running2, WNOHANG) > 0){
+		gettimeofday(&finish_time, NULL);
+		response_time2 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
+	}
+        if(waitpid(pid3, &running3, WNOHANG) > 0){
+		gettimeofday(&finish_time, NULL);
+		response_time3 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
+	}
+        if(waitpid(pid4, &running4, WNOHANG) > 0){
+		gettimeofday(&finish_time, NULL);
+		response_time4 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
+	}
     }
 
     // Calculate response times
-    gettimeofday(&finish_time, NULL);
-    response_time1 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
-    response_time2 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
-    response_time3 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
-    response_time4 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
     printf("Response Time for Process 1: %ld microseconds\n", response_time1);
     printf("Response Time for Process 2: %ld microseconds\n", response_time2);
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
