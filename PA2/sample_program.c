@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
     pid_t pid1, pid2, pid3, pid4;
     int running1, running2, running3, running4;
     
-    struct timeval start_time, start_time1, start_time2, start_time3, start_time4; // For response time tracking
+    struct timeval finish_time, start_time1, start_time2, start_time3, start_time4; // For response time tracking
     long response_time1, response_time2, response_time3, response_time4;
 
     pid1 = fork();
@@ -150,11 +150,11 @@ to be implemented.
     }
 
     // Calculate response times
-    gettimeofday(&start_time, NULL);
-    response_time1 = (start_time.tv_sec * 1000000 + start_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
-    response_time2 = (start_time.tv_sec * 1000000 + start_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
-    response_time3 = (start_time.tv_sec * 1000000 + start_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
-    response_time4 = (start_time.tv_sec * 1000000 + start_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
+    gettimeofday(&finish_time, NULL);
+    response_time1 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
+    response_time2 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
+    response_time3 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
+    response_time4 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
     printf("Response Time for Process 1: %ld microseconds\n", response_time1);
     printf("Response Time for Process 2: %ld microseconds\n", response_time2);
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
