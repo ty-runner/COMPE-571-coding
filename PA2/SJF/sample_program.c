@@ -11,8 +11,7 @@
 /*
 ***********************************************************************************
 *************
-These DEFINE statements represent the workload size of each task and
-the time quantum values for Round Robin scheduling for each task.
+These DEFINE statements represent the workload size of each task.
 ***********************************************************************************
 **************/
 #define WORKLOAD1 100000
@@ -56,26 +55,58 @@ typedef struct {
     long response_time; // To store response time
 } Process;
 
+/*Scheduler*/
 int main(int argc, char const *argv[]) {
+    // Create an array to hold the process information
     Process processes[4];
     
-    // Initialize processes with workload sizes
-    processes[3] = (Process){.pid = 0, .workload = WORKLOAD1, .response_time = 0};
-    processes[2] = (Process){.pid = 0, .workload = WORKLOAD2, .response_time = 0};
-    processes[1] = (Process){.pid = 0, .workload = WORKLOAD3, .response_time = 0};
-    processes[0] = (Process){.pid = 0, .workload = WORKLOAD4, .response_time = 0};
+    // Declare process IDs and response time tracking variables
+    pid_t pid1, pid2, pid3, pid4;
+    struct timeval finish_time, start_time; 
 
-    // Fork processes and store their PIDs
+    // Initialize processes using fork
+    pid1 = fork();
+    if (pid1 == 0) {
+        myfunction(WORKLOAD1);
+        exit(0);
+    }
+    kill(pid1, SIGSTOP); // Child process created but paused
+    processes[0] = (Process){pid1, WORKLOAD1, 0}; // Store PID and workload
+
+    pid2 = fork();
+    if (pid2 == 0) {
+        myfunction(WORKLOAD2);
+        exit(0);
+    }
+    kill(pid2, SIGSTOP); // Child process created but paused
+    processes[1] = (Process){pid2, WORKLOAD2, 0}; // Store PID and workload
+
+    pid3 = fork();
+    if (pid3 == 0) {
+        myfunction(WORKLOAD3);
+        exit(0);
+    }
+    kill(pid3, SIGSTOP); // Child process created but paused
+    processes[2] = (Process){pid3, WORKLOAD3, 0}; // Store PID and workload
+
+    pid4 = fork();
+    if (pid4 == 0) {
+        myfunction(WORKLOAD4);
+        exit(0);
+    }
+    kill(pid4, SIGSTOP); // Child process created but paused
+    processes[3] = (Process){pid4, WORKLOAD4, 0}; // Store PID and workload
+
+    // Sort processes by workload (SJF)
     for (int i = 0; i < 4; i++) {
-        processes[i].pid = fork();
-        if (processes[i].pid == 0) {
-            myfunction(processes[i].workload);
-            exit(0);
+        for (int j = i + 1; j < 4; j++) {
+            if (processes[i].workload > processes[j].workload) {
+                Process temp = processes[i];
+                processes[i] = processes[j];
+                processes[j] = temp;
+            }
         }
     }
-
-    // Calculate response times and store them in the Process struct
-    struct timeval finish_time, start_time;
 
     // Execute processes based on SJF scheduling
     for (int i = 0; i < 4; i++) {
