@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
     processes[0] = (Process){.pid = 0, .workload = WORKLOAD4, .response_time = 0};
 
     // Fork processes and store their PIDs
-    for (int i = 3; i >= 0; i--) {
+    for (int i = 0; i < 4; i++) {
         processes[i].pid = fork();
         if (processes[i].pid == 0) {
             myfunction(processes[i].workload);
@@ -78,7 +78,7 @@ int main(int argc, char const *argv[]) {
     struct timeval finish_time, start_time;
 
     // Execute processes based on SJF scheduling
-    for (int i = 3; i >= 0 ; i--) {
+    for (int i = 0; i < 4; i++) {
         gettimeofday(&start_time, NULL); // Get start time
         kill(processes[i].pid, SIGCONT); // Continue process
         waitpid(processes[i].pid, NULL, 0); // Wait for process to finish
