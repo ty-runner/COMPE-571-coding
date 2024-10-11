@@ -98,7 +98,10 @@ to be implemented.
 *************/
     // Initialize response time tracking variables
     int first_run1 = 0, first_run2 = 0, first_run3 = 0, first_run4 = 0;
-
+    running1 = 1;
+    running2 = 1;
+    running3 = 1;
+    running4 = 1;
     // Queue system for MLFQ
     int queue1[] = {pid1, pid2, pid3, pid4};
     int queue2[4], queue3[4];
