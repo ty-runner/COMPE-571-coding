@@ -33,10 +33,10 @@ do
     echo "======" >> $response_times_file
 
     # Compile and run programs in order
-    compile_and_run sample_program $response_times_file
-    compile_and_run SJF_implementation $response_times_file
-    compile_and_run FCFS_implementation $response_times_file
-    compile_and_run MLFQ_implementation $response_times_file
+    compile_and_run RR $response_times_file
+    compile_and_run SJF $response_times_file
+    compile_and_run FCFS $response_times_file
+    compile_and_run MLFQ $response_times_file
 
     echo "Run $i completed. Results saved to $response_times_file"
     echo ""
