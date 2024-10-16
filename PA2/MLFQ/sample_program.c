@@ -19,10 +19,7 @@ the time quantum values for Round Robin scheduling for each task.
 #define WORKLOAD3 25000
 #define WORKLOAD4 10000
 
-#define QUANTUM1 5000
-#define QUANTUM2 5000
-#define QUANTUM3 5000
-#define QUANTUM4 5000
+#define QUANTUM 5000
 
 /*
 ***********************************************************************************
@@ -103,63 +100,68 @@ to be implemented.
     running2 = 1;
     running3 = 1;
     running4 = 1;
+
+    //FLOW
+    //1. RR with time quantum val
+    //2. If a process is not finished by the quantum, move to FCFS
+    
     // Initialize response time tracking variables
     int first_run1 = 0, first_run2 = 0, first_run3 = 0, first_run4 = 0;
-
-    while (running1 > 0 || running2 > 0 || running3 > 0 || running4 > 0) {
-        if (running1 > 0) {
-            if (!first_run1) { // If this is the first run for pid1
-                gettimeofday(&start_time1, NULL); // Get start time
-                first_run1 = 1; // Mark that we have started running this process
-            }
-            kill(pid1, SIGCONT); // Continue process 1
-            usleep(QUANTUM1); // Process 1 runs for QUANTUM1 microseconds
-            kill(pid1, SIGSTOP); // Stop process 1
-        }
-        if (running2 > 0) {
-            if (!first_run2) { // If this is the first run for pid2
-                gettimeofday(&start_time2, NULL); // Get start time
-                first_run2 = 1; // Mark that we have started running this process
-            }
-            kill(pid2, SIGCONT); // Continue process 2
-            usleep(QUANTUM2); // Process 2 runs for QUANTUM2 microseconds
-            kill(pid2, SIGSTOP); // Stop process 2
-        }
-        if (running3 > 0) {
-            if (!first_run3) { // If this is the first run for pid3
-                gettimeofday(&start_time3, NULL); // Get start time
-                first_run3 = 1; // Mark that we have started running this process
-            }
-            kill(pid3, SIGCONT); // Continue process 3
-            usleep(QUANTUM3); // Process 3 runs for QUANTUM3 microseconds
-            kill(pid3, SIGSTOP); // Stop process 3
-        }
-        if (running4 > 0) {
-            if (!first_run4) { // If this is the first run for pid4
-                gettimeofday(&start_time4, NULL); // Get start time
-                first_run4 = 1; // Mark that we have started running this process
-            }
-            kill(pid4, SIGCONT); // Continue process 4
-            usleep(QUANTUM4); // Process 4 runs for QUANTUM4 microseconds
-            kill(pid4, SIGSTOP); // Stop process 4
-        }
-        if(waitpid(pid1, &running1, WNOHANG) > 0){
-		gettimeofday(&finish_time, NULL);
-		response_time1 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
-	}	
-        if(waitpid(pid2, &running2, WNOHANG) > 0){
-		gettimeofday(&finish_time, NULL);
-		response_time2 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
-	}
-        if(waitpid(pid3, &running3, WNOHANG) > 0){
-		gettimeofday(&finish_time, NULL);
-		response_time3 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
-	}
-        if(waitpid(pid4, &running4, WNOHANG) > 0){
-		gettimeofday(&finish_time, NULL);
-		response_time4 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
-	}
+    for(int i = 0; i < 3; i++){
+        
     }
+    if (running1 > 0) {
+        if (!first_run1) { // If this is the first run for pid1
+            gettimeofday(&start_time1, NULL); // Get start time
+            first_run1 = 1; // Mark that we have started running this process
+        }
+        kill(pid1, SIGCONT); // Continue process 1
+        usleep(QUANTUM); // Process 1 runs for QUANTUM1 microseconds
+        kill(pid1, SIGSTOP); // Stop process 1
+    }
+    if (running2 > 0) {
+        if (!first_run2) { // If this is the first run for pid2
+            gettimeofday(&start_time2, NULL); // Get start time
+            first_run2 = 1; // Mark that we have started running this process
+        }
+        kill(pid2, SIGCONT); // Continue process 2
+        usleep(QUANTUM); // Process 2 runs for QUANTUM2 microseconds
+        kill(pid2, SIGSTOP); // Stop process 2
+    }
+    if (running3 > 0) {
+        if (!first_run3) { // If this is the first run for pid3
+            gettimeofday(&start_time3, NULL); // Get start time
+            first_run3 = 1; // Mark that we have started running this process
+        }
+        kill(pid3, SIGCONT); // Continue process 3
+        usleep(QUANTUM); // Process 3 runs for QUANTUM3 microseconds
+        kill(pid3, SIGSTOP); // Stop process 3
+    }
+    if (running4 > 0) {
+        if (!first_run4) { // If this is the first run for pid4
+            gettimeofday(&start_time4, NULL); // Get start time
+            first_run4 = 1; // Mark that we have started running this process
+        }
+        kill(pid4, SIGCONT); // Continue process 4
+        usleep(QUANTUM); // Process 4 runs for QUANTUM4 microseconds
+        kill(pid4, SIGSTOP); // Stop process 4
+    }
+    if(waitpid(pid1, &running1, WNOHANG) > 0){
+    gettimeofday(&finish_time, NULL);
+    response_time1 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time1.tv_sec * 1000000 + start_time1.tv_usec);
+}	
+    if(waitpid(pid2, &running2, WNOHANG) > 0){
+    gettimeofday(&finish_time, NULL);
+    response_time2 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time2.tv_sec * 1000000 + start_time2.tv_usec);
+}
+    if(waitpid(pid3, &running3, WNOHANG) > 0){
+    gettimeofday(&finish_time, NULL);
+    response_time3 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time3.tv_sec * 1000000 + start_time3.tv_usec);
+}
+    if(waitpid(pid4, &running4, WNOHANG) > 0){
+    gettimeofday(&finish_time, NULL);
+    response_time4 = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time4.tv_sec * 1000000 + start_time4.tv_usec);
+}
 
     // Calculate response times
     printf("Response Time for Process 1: %ld microseconds\n", response_time1);
