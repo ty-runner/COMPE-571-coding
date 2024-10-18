@@ -119,13 +119,13 @@ to be implemented.
             gettimeofday(&context_time_start, NULL);
         }
         if (running2 > 0) {
-            gettimeofday(&context_time_finish, NULL);
-            printf("Context time diff: %ld\n", (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec))
             if (!first_run2) { // If this is the first run for pid2
                 gettimeofday(&start_time2, NULL); // Get start time
                 first_run2 = 1; // Mark that we have started running this process
             }
             kill(pid2, SIGCONT); // Continue process 2
+            gettimeofday(&context_time_finish, NULL);
+            printf("Context time diff: %ld\n", (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
             usleep(QUANTUM2); // Process 2 runs for QUANTUM2 microseconds
             kill(pid2, SIGSTOP); // Stop process 2
             process_switch_count++;
