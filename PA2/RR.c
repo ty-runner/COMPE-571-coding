@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
     pid_t pid1, pid2, pid3, pid4;
     int running1, running2, running3, running4;
     
-    struct timeval finish_time, start_time1, start_time2, start_time3, start_time4; // For response time tracking
+    struct timeval context_time_start, context_time_finish, finish_time, start_time1, start_time2, start_time3, start_time4; // For response time tracking
     long response_time1, response_time2, response_time3, response_time4;
 
     pid1 = fork();
@@ -116,8 +116,11 @@ to be implemented.
             usleep(QUANTUM1); // Process 1 runs for QUANTUM1 microseconds
             kill(pid1, SIGSTOP); // Stop process 1
             process_switch_count++;
+            gettimeofday(&context_time_start, NULL);
         }
         if (running2 > 0) {
+            gettimeofday(&context_time_finish, NULL);
+            printf("Context time diff: %ld\n", (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec))
             if (!first_run2) { // If this is the first run for pid2
                 gettimeofday(&start_time2, NULL); // Get start time
                 first_run2 = 1; // Mark that we have started running this process
