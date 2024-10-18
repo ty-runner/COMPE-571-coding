@@ -105,7 +105,7 @@ to be implemented.
     running4 = 1;
     // Initialize response time tracking variables
     int first_run1 = 0, first_run2 = 0, first_run3 = 0, first_run4 = 0;
-
+    int process_switch_count = 0;
     while (running1 > 0 || running2 > 0 || running3 > 0 || running4 > 0) {
         if (running1 > 0) {
             if (!first_run1) { // If this is the first run for pid1
@@ -115,6 +115,7 @@ to be implemented.
             kill(pid1, SIGCONT); // Continue process 1
             usleep(QUANTUM1); // Process 1 runs for QUANTUM1 microseconds
             kill(pid1, SIGSTOP); // Stop process 1
+            process_switch_count++;
         }
         if (running2 > 0) {
             if (!first_run2) { // If this is the first run for pid2
@@ -124,6 +125,7 @@ to be implemented.
             kill(pid2, SIGCONT); // Continue process 2
             usleep(QUANTUM2); // Process 2 runs for QUANTUM2 microseconds
             kill(pid2, SIGSTOP); // Stop process 2
+            process_switch_count++;
         }
         if (running3 > 0) {
             if (!first_run3) { // If this is the first run for pid3
@@ -133,6 +135,7 @@ to be implemented.
             kill(pid3, SIGCONT); // Continue process 3
             usleep(QUANTUM3); // Process 3 runs for QUANTUM3 microseconds
             kill(pid3, SIGSTOP); // Stop process 3
+            process_switch_count++;
         }
         if (running4 > 0) {
             if (!first_run4) { // If this is the first run for pid4
@@ -142,6 +145,7 @@ to be implemented.
             kill(pid4, SIGCONT); // Continue process 4
             usleep(QUANTUM4); // Process 4 runs for QUANTUM4 microseconds
             kill(pid4, SIGSTOP); // Stop process 4
+            process_switch_count++;
         }
         
         if(waitpid(pid1, &running1, WNOHANG) > 0){
@@ -163,6 +167,7 @@ to be implemented.
     }
 
     // Calculate response times
+    printf("Context switches: %d\n", process_switch_count);
     printf("Response Time for Process 1: %ld microseconds\n", response_time1);
     printf("Response Time for Process 2: %ld microseconds\n", response_time2);
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
