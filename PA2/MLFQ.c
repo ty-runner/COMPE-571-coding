@@ -108,26 +108,23 @@ to be implemented.
     
     int running[4] = {0};
     int first_run[4] = {0};
-    //FLOW
-    //1. RR with time quantum val
-    //2. If a process is not finished by the quantum, move to FCFS
-    
+
     while(queue1_count > 0 || queue2_count > 0){
         //rr
         for(int i = 0; i < 4; i++){
             if(rr_queue[i] != 0){
                 if(!running[i]){ //if the process isnt complete
                     if(!first_run[i]){
-                        gettimeofday(&start_time[i], NULL) //start time for the process
+                        gettimeofday(&start_time[i], NULL); //start time for the process
                         first_run[i] = 1;
                     }
                     kill(rr_queue[i], SIGCONT); // Start process
                     usleep(QUANTUM); // Process runs for QUANTUM microseconds
                     kill(rr_queue[i], SIGSTOP); // Stop process
-                    if(waitpid(rr_queue[i], &running[i], WHOHANG) > 0){ //process finished!
+                    if(waitpid(rr_queue[i], &running[i], WNOHANG) > 0){ //process finished!
                         gettimeofday(&finish_time, NULL);
                         response_times[i] = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time[i].tv_sec * 1000000 + start_time[i].tv_usec);
-                        printf("Response Time for Process %d: %ld microseconds\n", i, response_time[i]);
+                        printf("Response Time for Process %d: %ld microseconds\n", i, response_times[i]);
                     }
                     else{ //if the process didn't finish, ship it to the FCFS queue
                         fcfs_queue[queue2_count++] = rr_queue[i];
