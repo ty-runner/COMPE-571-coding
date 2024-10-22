@@ -125,6 +125,8 @@ to be implemented.
                         gettimeofday(&finish_time, NULL);
                         response_times[i] = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time[i].tv_sec * 1000000 + start_time[i].tv_usec);
                         printf("Response Time for Process %d: %ld microseconds\n", i, response_times[i]);
+                        rr_queue[i] = 0;
+                        queue1_count--;
                     }
                     else{ //if the process didn't finish, ship it to the FCFS queue
                         fcfs_queue[queue2_count++] = rr_queue[i];
