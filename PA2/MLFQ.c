@@ -19,7 +19,7 @@ the time quantum values for Round Robin scheduling for each task.
 #define WORKLOAD3 25000
 #define WORKLOAD4 10000
 
-#define QUANTUM 5000
+#define QUANTUM 20000
 
 /*
 ***********************************************************************************
