@@ -55,6 +55,8 @@ typedef struct {
     long response_time; // To store response time
 } Process;
 
+struct timeval context_time_start, context_time_finish;
+
 /*Scheduler*/
 int main(int argc, char const *argv[]) {
     // Create an array to hold the process information
@@ -108,15 +110,20 @@ int main(int argc, char const *argv[]) {
         }
     }
 
+    gettimeofday(&context_time_start, NULL);
+    int j = 1;
     // Execute processes based on SJF scheduling
     for (int i = 0; i < 4; i++) {
         gettimeofday(&start_time, NULL); // Get start time
         kill(processes[i].pid, SIGCONT); // Continue process
+        gettimeofday(&context_time_finish, NULL);
+        printf("Context switch %d time: %ld\n", j++, (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
         waitpid(processes[i].pid, NULL, 0); // Wait for process to finish
         gettimeofday(&finish_time, NULL); // Get finish time
 
         // Calculate response time
         processes[i].response_time = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time.tv_sec * 1000000 + start_time.tv_usec);
+        gettimeofday(&context_time_start, NULL);
     }
 
     // Print response times
