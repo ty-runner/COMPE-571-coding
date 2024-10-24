@@ -180,12 +180,12 @@ to be implemented.
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
     printf("Response Time for Process 4: %ld microseconds\n", response_time4);
     printf("Average response time: %ld microseconds\n", (response_time1 + response_time2 + response_time3 + response_time4) / 4);
-    long total_overhead = 0;
+    long long total_overhead = 0;
     for (int i = 0; i < switch_index; i++) {
         total_overhead += context_switch_overheads[i];
     }
-    long average_overhead = total_overhead / switch_index;
-    printf("\n\nAverage context switch overhead: %ld microseconds\n", average_overhead);
+    float average_overhead = total_overhead / switch_index;
+    printf("\n\nAverage context switch overhead: %.3f microseconds\n", average_overhead);
 /**********************************************************************************
 **************
 - Scheduling code ends here
