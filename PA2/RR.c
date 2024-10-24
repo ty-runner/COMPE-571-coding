@@ -184,7 +184,7 @@ to be implemented.
     for (int i = 0; i < switch_index; i++) {
         total_overhead += context_switch_overheads[i];
     }
-    float average_overhead = total_overhead / switch_index;
+    double average_overhead = (double)total_overhead / switch_index;
     printf("\n\nAverage context switch overhead: %.3f microseconds\n", average_overhead);
 /**********************************************************************************
 **************
