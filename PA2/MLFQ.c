@@ -58,6 +58,7 @@ int main(int argc, char const *argv[]) {
     struct timeval start_time[4];
     struct timeval finish_time;
     long response_times[4];
+    struct timeval context_time_start, context_time_finish;
 
     pid1 = fork();
     if (pid1 == 0) {
@@ -111,6 +112,7 @@ to be implemented.
 
     while(queue1_count > 0 || queue2_count > 0){
         //rr
+        gettimeofday(&context_time_start, NULL); //context switch measurement
         for(int i = 0; i < 4; i++){
             if(rr_queue[i] != 0){
                 if(!running[i]){ //if the process isnt complete
@@ -119,8 +121,11 @@ to be implemented.
                         first_run[i] = 1;
                     }
                     kill(rr_queue[i], SIGCONT); // Start process
+                    gettimeofday(&context_time_finish, NULL); //context switch measurement
+                    printf("Context switch %d time: %ld\n", j++, (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
                     usleep(QUANTUM); // Process runs for QUANTUM microseconds
                     kill(rr_queue[i], SIGSTOP); // Stop process
+                    gettimeofday(&context_time_start, NULL); //context switch measurement
                     if(waitpid(rr_queue[i], &running[i], WNOHANG) > 0){ //process finished!
                         gettimeofday(&finish_time, NULL);
                         response_times[i] = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time[i].tv_sec * 1000000 + start_time[i].tv_usec);
@@ -138,14 +143,19 @@ to be implemented.
         }
         //fcfs
         if(queue1_count == 0 && queue2_count > 0){
+            int j = 0;
+            gettimeofday(&context_time_start, NULL);
             for(int i = 0; i < queue2_count; i++){
                 if(fcfs_queue[i] != 0){
                     kill(fcfs_queue[i], SIGCONT); // Start process
+                    gettimeofday(&context_time_finish, NULL);
+                    printf("Context switch %d time: %ld\n", j++, (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
                     waitpid(fcfs_queue[i], NULL, 0);
                     gettimeofday(&finish_time, NULL);
                     response_times[i] = (finish_time.tv_sec * 1000000 + finish_time.tv_usec) - (start_time[i].tv_sec * 1000000 + start_time[i].tv_usec);
                     printf("Response Time for Process %d: %ld microseconds\n", i, response_times[i]);
-                    fcfs_queue[i] = 0;
+                    fcfs_queue[i] = 0;\
+                    gettimeofday(&context_time_start, NULL);
                 }
             }
             queue2_count = 0;
