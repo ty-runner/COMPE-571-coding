@@ -106,6 +106,9 @@ to be implemented.
     // Initialize response time tracking variables
     int first_run1 = 0, first_run2 = 0, first_run3 = 0, first_run4 = 0;
     int process_switch_count = 0;
+
+    long context_switch_overheads[100];  // Adjust size as needed
+    int switch_index = 0;
     while (running1 > 0 || running2 > 0 || running3 > 0 || running4 > 0) {
         if (running1 > 0) {
             if (!first_run1) { // If this is the first run for pid1
@@ -125,7 +128,8 @@ to be implemented.
             }
             kill(pid2, SIGCONT); // Continue process 2
             gettimeofday(&context_time_finish, NULL);
-            printf("Context time diff: %ld\n", (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
+            long overhead = (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec);
+            context_switch_overheads[switch_index++] = overhead;
             usleep(QUANTUM2); // Process 2 runs for QUANTUM2 microseconds
             kill(pid2, SIGSTOP); // Stop process 2
             process_switch_count++;
@@ -176,7 +180,12 @@ to be implemented.
     printf("Response Time for Process 3: %ld microseconds\n", response_time3);
     printf("Response Time for Process 4: %ld microseconds\n", response_time4);
     printf("Average response time: %ld microseconds\n", (response_time1 + response_time2 + response_time3 + response_time4) / 4);
-    
+    long total_overhead = 0;
+    for (int i = 0; i < switch_index; i++) {
+        total_overhead += context_switch_overheads[i];
+    }
+    long average_overhead = total_overhead / switch_index;
+    printf("\n\nAverage context switch overhead: %ld microseconds\n", average_overhead);
 /**********************************************************************************
 **************
 - Scheduling code ends here

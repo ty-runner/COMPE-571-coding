@@ -122,7 +122,7 @@ to be implemented.
                     }
                     kill(rr_queue[i], SIGCONT); // Start process
                     gettimeofday(&context_time_finish, NULL); //context switch measurement
-                    printf("Context switch %d time: %ld\n", j++, (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
+                    printf("Context switch time: %ld\n", (context_time_finish.tv_sec * 1000000 + context_time_finish.tv_usec) - (context_time_start.tv_sec * 1000000 + context_time_start.tv_usec));
                     usleep(QUANTUM); // Process runs for QUANTUM microseconds
                     kill(rr_queue[i], SIGSTOP); // Stop process
                     gettimeofday(&context_time_start, NULL); //context switch measurement
