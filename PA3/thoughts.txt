@@ -1,0 +1,39 @@
+First Row: <# of tasks> <time the system will execute up to in seconds> <CPU power @1188 Mhz> <CPU power @918 Mhz> 
+<CPU power @648 Mhz> <CPU power @648 Mhz> <CPU power @384 Mhz> <idle CPU power>
+
+All other rows: <name of task> <deadline/period> <WCET @ 1188 Mhz> <WCET @918 Mhz> <WCET @ 648 Mhz> <WCET @ 384 Mhz>
+
+Sample Calls:
+    - ./my_solution input.txt EDF EE
+    - ./my_solution input.txt RM
+
+Need to generate scheduling sequences for these 4 algorithms:
+• EDF: Earliest deadline first when all tasks run at maximum CPU frequency
+• RM: Rate-monotonic when all tasks run at maximum CPU frequency
+• EE EDF/RM: Your scheduler needs to adjust the frequency of the CPU to be as low as
+possible (however, you still need to make sure that lowering the frequency for a task results in
+lower energy – remember that low power does not always mean low energy) while still meeting
+the deadlines and ensuring tasks are still scheduled in order as defined by either EDF or RM
+policy. An intuitive way to think about this is that you change each task’s frequency to fill in
+‘gaps’ in the schedule, while not violating the deadlines
+
+When a task is scheduled, it should output the following: <time started> <task name> <CPU
+frequency task runs at> <how long it ran for> <energy consumed in Joules>. If you are
+scheduling an idle period, use ‘IDLE’ as the task name and frequency value. 
+
+Example Output:
+1 w1 1188 53 33.125J
+54 IDLE IDLE 17 1.428J
+71 w3 648 20 6.140J
+
+Stage 1: Input file processing
+Stage 2: EDF and RM scheduling
+Stage 3: EE scheduling
+Stage 4: Optimal energy efficient schedules(least energy consumption but are still feasible)
+
+Programming Language: python
+Stage 1: parse first row for # of tasks, hyperperiod, and power levels. Then for each task in # of tasks, parse name,
+deadline / period, and WCET for each power level.
+Stage 2: 
+- EDF = utilization = (execution time / Period for all tasks) <= 1
+- RM =  utilization = (execution time / Period for all tasks) <= n(2^(1/n) - 1)
