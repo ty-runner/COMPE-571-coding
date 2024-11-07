@@ -4,6 +4,13 @@
 
 void parse_input_file(char *input_file, int *num_tasks, int *run_time, int **tasks, int **power_levels);
 
+typedef struct task {
+    char *name;
+    int task_id;
+    int deadline;
+    int *execution_times;
+} Task;
+
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Usage: %s <input_file> <schedule> [<mode>]\n", argv[0]);
@@ -15,14 +22,6 @@ int main(int argc, char *argv[]) {
     char *mode = NULL;
     int num_tasks, run_time;
     int *tasks = NULL, *power_levels = NULL;
-    // if (argc == 4) { // Check if energy-efficient mode is specified
-    //     mode = argv[3];
-    //     if (strcmp(schedule, "EE") == 0 || strcmp(mode, "EE") == 0) {
-    //         printf("Energy efficient mode enabled with schedule type: %s\n", schedule);
-    //         parse_input_file(input_file, &num_tasks, &run_time, &tasks, &power_levels);
-    //         return 0;
-    //     }
-    // }
 
     printf("Schedule type: %s\n", schedule);
     parse_input_file(input_file, &num_tasks, &run_time, &tasks, &power_levels);
@@ -72,8 +71,10 @@ void parse_input_file(char *input_file, int *num_tasks, int *run_time, int **tas
     int task_index = 0;
     while (fgets(line, sizeof(line), file) != NULL) {
         token = strtok(line, " ");
+        printf("%s\n", token);
+        (*tasks)[task_index] = atoi(token);
         while (token != NULL) {
-            printf("%s\n", token);
+            // printf("%s\n", token);
             token = strtok(NULL, " ");
         }
         task_index++;

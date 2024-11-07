@@ -1,5 +1,5 @@
 First Row: <# of tasks> <time the system will execute up to in seconds> <CPU power @1188 Mhz> <CPU power @918 Mhz> 
-<CPU power @648 Mhz> <CPU power @648 Mhz> <CPU power @384 Mhz> <idle CPU power>
+<CPU power @648 Mhz> <CPU power @384 Mhz> <idle CPU power>
 
 All other rows: <name of task> <deadline/period> <WCET @ 1188 Mhz> <WCET @918 Mhz> <WCET @ 648 Mhz> <WCET @ 384 Mhz>
 
