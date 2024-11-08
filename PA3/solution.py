@@ -52,25 +52,30 @@ def find_utilization(data, quota):
         return False
     return True
 
+def calculate_energy(power, time):
+    return power * time
+
 def generate_edf_schedule(data):
-    # Generate the Earliest Deadline First (EDF) schedule
-    #sort tasks by deadline
+    # Generate the Earliest Deadline First (EDF) schedule with preemption
     tasks = data["tasks"]
     tasks.sort(key=lambda x: x["deadline_period"])
     ready_queue = []
+    for task in tasks:
+        ready_queue.append(task)
     time = 0
     while time < data["system_execution_time"]:
         for task in tasks:
             if time % task["deadline_period"] == 0:
-                ready_queue.append(task)
-        ready_queue.sort(key=lambda x: x["deadline_period"])
-        if len(ready_queue) == 0:
-            print("No tasks to schedule, IDLE")
+                ready_queue.append(task) #task added to ready queue
+                print(f"Task {task['name']} added to ready queue at time {time}")
+        ready_queue.sort(key=lambda x: x["deadline_period"]) #prioritize by deadline
+        if len(ready_queue) > 0:
+            task = ready_queue.pop(0)
+            print(f"Task {task['name']} running at time {time}")
+            time += task["wcet"]["1188 Mhz"]
+        else:
             time += 1
-            continue
-        task = ready_queue.pop(0)
-        print(f"Task {task['name']} scheduled at time {time}")
-        time += task["wcet"]["1188 Mhz"]
+            
     pass
 
 def earliest_deadline_first(data, EE):
@@ -121,7 +126,7 @@ def main():
         sys.exit(1)
 
     # Output the parsed data (or you can proceed with the scheduling algorithm here)
-    print(data)
+    # print(data)
 
 if __name__ == "__main__":
     main()
