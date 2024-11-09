@@ -1,3 +1,4 @@
+import copy
 import sys
 import math
 
@@ -60,21 +61,29 @@ def generate_edf_schedule(data):
     tasks = data["tasks"]
     tasks.sort(key=lambda x: x["deadline_period"])
     ready_queue = []
-    for task in tasks:
-        ready_queue.append(task)
     time = 0
+    running_task = None
     while time < data["system_execution_time"]:
         for task in tasks:
             if time % task["deadline_period"] == 0:
-                ready_queue.append(task) #task added to ready queue
+                ready_queue.append(copy.deepcopy(task)) #task added to ready queue
                 print(f"Task {task['name']} added to ready queue at time {time}")
         ready_queue.sort(key=lambda x: x["deadline_period"]) #prioritize by deadline
         if len(ready_queue) > 0:
-            task = ready_queue.pop(0)
-            print(f"Task {task['name']} running at time {time}")
-            time += task["wcet"]["1188 Mhz"]
+            if running_task is None or running_task["deadline_period"] > ready_queue[0]["deadline_period"]:
+                if running_task is not None:
+                    print(f"Task {running_task['name']} preempted at time {time}")
+                running_task = ready_queue[0]
+                print(f"Task {running_task['name']} running at time {time}")
+            running_task["wcet"]["1188 Mhz"] -= 1
+            if running_task["wcet"]["1188 Mhz"] == 0:
+                print(f"Task {running_task['name']} completed at time {time}")
+                ready_queue.pop(0)
+                running_task = None
+
         else:
-            time += 1
+            print(f"Idle at time {time}")
+        time += 1
             
     pass
 
