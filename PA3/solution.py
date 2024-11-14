@@ -31,7 +31,9 @@ def parse_file(file_path):
                 "918 Mhz": int(parts[3]),
                 "648 Mhz": int(parts[4]),
                 "384 Mhz": int(parts[5])
-            }
+            },
+            "deadline_misses": 0,
+            "deadline": int(parts[1])
         }
         tasks.append(task)
 
@@ -68,9 +70,9 @@ def generate_edf_schedule(data):
             if time % task["deadline_period"] == 0:
                 ready_queue.append(copy.deepcopy(task)) #task added to ready queue
                 print(f"Task {task['name']} added to ready queue at time {time}")
-        ready_queue.sort(key=lambda x: x["deadline_period"]) #prioritize by deadline
+        ready_queue.sort(key=lambda x: x["deadline"]) #prioritize by deadline
         if len(ready_queue) > 0:
-            if running_task is None or running_task["deadline_period"] > ready_queue[0]["deadline_period"]:
+            if running_task is None or running_task["deadline"] > ready_queue[0]["deadline"]:
                 if running_task is not None:
                     print(f"Task {running_task['name']} preempted at time {time}")
                 running_task = ready_queue[0]
@@ -78,9 +80,10 @@ def generate_edf_schedule(data):
             running_task["wcet"]["1188 Mhz"] -= 1
             if running_task["wcet"]["1188 Mhz"] == 0:
                 print(f"Task {running_task['name']} completed at time {time}")
+                original_task = next(task for task in tasks if task["name"] == running_task["name"])
+                original_task["deadline"] += original_task["deadline_period"]
                 ready_queue.pop(0)
                 running_task = None
-
         else:
             print(f"Idle at time {time}")
         time += 1
