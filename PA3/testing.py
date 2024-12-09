@@ -100,28 +100,35 @@ class Scheduler:
         return next_time, tasks_to_release
 
     def find_best_frequency(self, task_instance: TaskInstance, current_time: int) -> int:
+        """
+        Determine the optimal CPU frequency for minimizing energy consumption
+        while meeting task deadlines.
+        """
         if not task_instance:
-            return self.cpu_power.frequencies[0]
+            return self.cpu_power.frequencies[0]  # Default to highest frequency if no task is given.
+            
         time_available = task_instance.deadline - current_time
         min_energy = float('inf')
         best_freq = self.cpu_power.frequencies[0]
         
         for freq in self.cpu_power.frequencies:
-            # Scale WCET and round up to nearest integer
-            running_time = task_instance.task.wcet[freq]
-            scaled_wcet = ceil(task_instance.remaining_time * (self.cpu_power.frequencies[0] / freq))
-            if running_time <= time_available:
-                active_energy = calculate_energy(self.cpu_power.active_power[freq], running_time)
-                idle_time = time_available - running_time
+            # Retrieve the WCET for the task at this frequency
+            wcet_at_freq = task_instance.task.wcet[freq]
+            
+            # Check if the task can complete before the deadline
+            if wcet_at_freq <= time_available:
+                # Calculate energy consumption at this frequency
+                active_energy = calculate_energy(self.cpu_power.active_power[freq], wcet_at_freq)
+                idle_time = time_available - wcet_at_freq
                 idle_energy = calculate_energy(self.cpu_power.idle_power, idle_time) if idle_time > 0 else 0
                 total_energy = active_energy + idle_energy
                 
+                # Keep track of the frequency with the minimum energy
                 if total_energy < min_energy:
                     min_energy = total_energy
                     best_freq = freq
         
         return best_freq
-
     def update_ready_queue(self, current_time: int, new_tasks: List[Task]) -> None:
         for task in new_tasks:
             instance = self.create_task_instance(task, current_time)
@@ -173,8 +180,7 @@ class Scheduler:
             scale_factor = self.cpu_power.frequencies[0] / chosen_freq
             scaled_remaining = ceil(current_task.remaining_time * scale_factor)
             actual_duration = min(scaled_remaining, time_until_release)
-            actual_duration = current_task.wcet[chosen_freq]
-            print(current_task.task.wcet[chosen_freq])
+            
             # Calculate execution progress (rounded up)
             execution_progress = ceil(actual_duration / scale_factor)
             current_task.remaining_time -= execution_progress

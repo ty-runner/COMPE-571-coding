@@ -16,13 +16,16 @@ class TaskInstance:
     release_time: int
     deadline: int
     remaining_time: int
+    original_wcet: int
     policy: str
     
     def __lt__(self, other):
         if self.policy == "EDF":
-            return self.deadline < other.deadline  # EDF priority
-        else:
-            return self.task.period < other.task.period  # RM priority
+            if self.deadline == other.deadline:
+                return self.task.period < other.task.period
+            return self.deadline < other.deadline
+        else:  # RM
+            return self.task.period < other.task.period
 
 @dataclass
 class CPUPower:
@@ -63,21 +66,22 @@ class Scheduler:
         self.total_time = total_time
         self.schedule = []
         self.ready_queue = PriorityQueue()
-        self.task_instances = {}  # Store active task instances
-        self.next_releases = {}   # Track next release time for each task
+        self.task_instances = {}
+        self.next_releases = {}
         self.policy = None
         
-        # Initialize task tracking
-        for task in tasks:
+        for task in self.tasks:
             self.next_releases[task.name] = 0
             self.task_instances[task.name] = None
 
     def create_task_instance(self, task: Task, release_time: int) -> TaskInstance:
+        max_freq = self.cpu_power.frequencies[0]
         instance = TaskInstance(
             task=task,
             release_time=release_time,
             deadline=release_time + task.period,
-            remaining_time=task.wcet[self.cpu_power.frequencies[0]],
+            remaining_time=task.wcet[max_freq],
+            original_wcet=task.wcet[max_freq],
             policy=self.policy
         )
         self.task_instances[task.name] = instance
@@ -99,48 +103,56 @@ class Scheduler:
                     
         return next_time, tasks_to_release
 
-    def find_best_frequency(self, task_instance: TaskInstance, current_time: int) -> int:
-        if not task_instance:
-            return self.cpu_power.frequencies[0]
-        time_available = task_instance.deadline - current_time
-        min_energy = float('inf')
-        best_freq = self.cpu_power.frequencies[0]
-        
-        for freq in self.cpu_power.frequencies:
-            # Scale WCET and round up to nearest integer
-            running_time = task_instance.task.wcet[freq]
-            scaled_wcet = ceil(task_instance.remaining_time * (self.cpu_power.frequencies[0] / freq))
-            if running_time <= time_available:
-                active_energy = calculate_energy(self.cpu_power.active_power[freq], running_time)
-                idle_time = time_available - running_time
-                idle_energy = calculate_energy(self.cpu_power.idle_power, idle_time) if idle_time > 0 else 0
-                total_energy = active_energy + idle_energy
-                
-                if total_energy < min_energy:
-                    min_energy = total_energy
-                    best_freq = freq
-        
-        return best_freq
-
     def update_ready_queue(self, current_time: int, new_tasks: List[Task]) -> None:
+        # Add new task instances
         for task in new_tasks:
             instance = self.create_task_instance(task, current_time)
             self.ready_queue.put(instance)
-            
+        
+        # Refresh the ready queue to remove any missed deadlines
         active_tasks = []
         while not self.ready_queue.empty():
             instance = self.ready_queue.get()
             if instance.remaining_time > 0 and instance.deadline > current_time:
                 active_tasks.append(instance)
-                
+        
         for instance in active_tasks:
             self.ready_queue.put(instance)
+
+    def find_best_frequency(self, task_instance: TaskInstance, current_time: int) -> Tuple[int, int]:
+        if not task_instance:
+            return self.cpu_power.frequencies[0], 0
+    
+        time_available = task_instance.deadline - current_time
+        min_total_energy = float('inf')
+        best_freq = self.cpu_power.frequencies[0]  # Start with highest frequency as default
+        best_duration = task_instance.remaining_time  # Use remaining time directly
+        
+        for freq in self.cpu_power.frequencies:
+            # Calculate scaled execution time at this frequency
+            scaled_time = ceil(task_instance.remaining_time * 
+                             (task_instance.task.wcet[freq] / task_instance.task.wcet[self.cpu_power.frequencies[0]]))
+            
+            if scaled_time <= time_available:
+                active_power = self.cpu_power.active_power[freq]
+                active_energy = (active_power * scaled_time) / 1000
+                
+                idle_time = time_available - scaled_time
+                idle_energy = (self.cpu_power.idle_power * idle_time) / 1000
+                
+                total_energy = active_energy + idle_energy
+                
+                if total_energy < min_total_energy:
+                    min_total_energy = total_energy
+                    best_freq = freq
+                    best_duration = scaled_time
+    
+        return best_freq, best_duration
 
     def run(self, policy: str, energy_efficient: bool = False):
         self.policy = policy
         current_time = 0
         
-        # Initial task releases at t=0
         self.update_ready_queue(0, self.tasks)
         
         while current_time < self.total_time:
@@ -151,7 +163,7 @@ class Scheduler:
                 if next_release_time == float('inf') or next_release_time >= self.total_time:
                     idle_duration = self.total_time - current_time
                     if idle_duration > 0:
-                        self.schedule.append((current_time, "IDLE", "IDLE", idle_duration, 
+                        self.schedule.append((current_time, "IDLE", "IDLE", idle_duration,
                                            calculate_energy(self.cpu_power.idle_power, idle_duration)))
                     break
                 else:
@@ -162,31 +174,33 @@ class Scheduler:
                     self.update_ready_queue(current_time, next_release_tasks)
                     continue
             
-            time_until_release = next_release_time - current_time if next_release_time < float('inf') else current_task.remaining_time
-            
             if energy_efficient:
-                chosen_freq = self.find_best_frequency(current_task, current_time)
+                chosen_freq, execution_time = self.find_best_frequency(current_task, current_time)
             else:
                 chosen_freq = self.cpu_power.frequencies[0]
+                execution_time = ceil(current_task.remaining_time * 
+                                   (current_task.task.wcet[chosen_freq] / 
+                                    current_task.task.wcet[self.cpu_power.frequencies[0]]))
             
-            # Calculate execution time and round up to integer
-            scale_factor = self.cpu_power.frequencies[0] / chosen_freq
-            scaled_remaining = ceil(current_task.remaining_time * scale_factor)
-            actual_duration = min(scaled_remaining, time_until_release)
-            actual_duration = current_task.wcet[chosen_freq]
-            print(current_task.task.wcet[chosen_freq])
-            # Calculate execution progress (rounded up)
-            execution_progress = ceil(actual_duration / scale_factor)
-            current_task.remaining_time -= execution_progress
+            # Check if we need to preempt for new task release
+            if next_release_time < current_time + execution_time:
+                execution_time = next_release_time - current_time
             
-            energy = calculate_energy(self.cpu_power.active_power[chosen_freq], actual_duration)
+            # Update remaining time based on actual execution at chosen frequency
+            time_completed = float(execution_time * 
+                                 (current_task.task.wcet[self.cpu_power.frequencies[0]] / 
+                                  current_task.task.wcet[chosen_freq]))
+            current_task.remaining_time = max(0, current_task.remaining_time - time_completed)
+            
+            # Add to schedule
+            energy = calculate_energy(self.cpu_power.active_power[chosen_freq], execution_time)
             self.schedule.append((current_time, current_task.task.name, chosen_freq,
-                                actual_duration, energy))
+                                execution_time, energy))
             
             if current_task.remaining_time > 0:
                 self.ready_queue.put(current_task)
             
-            current_time += actual_duration
+            current_time += execution_time
             
             if current_time >= next_release_time:
                 self.update_ready_queue(next_release_time, next_release_tasks)
@@ -194,17 +208,25 @@ class Scheduler:
     def print_schedule(self):
         total_energy = 0
         idle_time = 0
+        freq_distribution = {1188: 0, 918: 0, 648: 0, 384: 0, 'IDLE': 0}
         
         print("\nSchedule:")
         for start_time, task_name, freq, duration, energy in self.schedule:
             if task_name == "IDLE":
                 idle_time += duration
+                freq_distribution['IDLE'] += duration
+            else:
+                freq_distribution[freq] += duration
             print(f"{start_time} {task_name} {freq} {duration} {energy:.3f}J")
             total_energy += energy
         
         print(f"\nTotal Energy Consumption: {total_energy:.3f}J")
         print(f"Percentage of time spent idle: {(idle_time/self.total_time)*100:.2f}%")
         print(f"Total System Execution Time: {self.total_time}s")
+        print("\nFrequency Distribution:")
+        for freq, duration in freq_distribution.items():
+            if duration > 0:
+                print(f"{freq}: {duration}s ({(duration/self.total_time)*100:.2f}%)")
 
 def main():
     if len(sys.argv) < 3:
